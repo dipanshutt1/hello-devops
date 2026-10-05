@@ -1,0 +1,39 @@
+name: Website CI
+
+# Start automatically on pushes to main, or manually from the Actions tab.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Download repository code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # No npm install is needed: this project has no external dependencies.
+      - name: Test website
+        run: npm test
+
+      - name: Build website package
+        run: npm run build
+
+      - name: Save website artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: website
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
